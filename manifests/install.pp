@@ -19,7 +19,7 @@ class confluence::install {
       password         => '*',
       password_min_age => '0',
       password_max_age => '99999',
-      managehome       => true,
+      managehome       => false,
       system           => true,
       uid              => $confluence::uid,
       gid              => $confluence::gid,
@@ -94,14 +94,17 @@ class confluence::install {
     }
   }
 
-  file { $confluence::homedir:
-    ensure => 'directory',
-    owner  => $confluence::user,
-    group  => $confluence::group,
+  if ! definded(File[$confluence::homedir]) {
+    file { $confluence::homedir:
+      ensure => 'directory',
+      owner  => $confluence::user,
+      group  => $confluence::group,
+    }
   }
-  -> exec { "chown_${confluence::webappdir}":
+  exec { "chown_${confluence::webappdir}":
     command     => "/bin/chown -R ${confluence::user}:${confluence::group} ${confluence::webappdir}",
     refreshonly => true,
     subscribe   => User[$confluence::user],
+    require     => File[$confluence::homedir],
   }
 }
