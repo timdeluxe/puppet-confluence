@@ -94,7 +94,7 @@ class confluence::install {
     }
   }
 
-  if ! definded(File[$confluence::homedir]) {
+  if ! defined(File[$confluence::homedir]) {
     file { $confluence::homedir:
       ensure => 'directory',
       owner  => $confluence::user,
