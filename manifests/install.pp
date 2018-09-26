@@ -19,7 +19,10 @@ class confluence::install {
       password         => '*',
       password_min_age => '0',
       password_max_age => '99999',
-      managehome       => false,
+      managehome       => defined(File[$confluence::homedir]) ? {
+        true    => false,
+        default => true,
+      },
       system           => true,
       uid              => $confluence::uid,
       gid              => $confluence::gid,
