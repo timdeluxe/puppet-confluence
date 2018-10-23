@@ -15,7 +15,7 @@ class confluence::service (
 
   file { $service_file_location:
     content => template($service_file_template),
-    mode    => '0755',
+    mode    => '0644',
     notify  => [
       $refresh_systemd ? {
         true    => Class['systemd::systemctl::daemon_reload'],
