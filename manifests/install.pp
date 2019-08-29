@@ -4,7 +4,7 @@
 #
 class confluence::install {
 
-  include '::archive'
+  include 'archive'
 
   if $::confluence::manage_user {
     group { $confluence::group:
@@ -19,15 +19,14 @@ class confluence::install {
       password         => '*',
       password_min_age => '0',
       password_max_age => '99999',
-      managehome       => defined(File[$confluence::homedir]) ? {
-        true    => false,
-        default => true,
-      },
+      managehome       => true,
       system           => true,
       uid              => $confluence::uid,
       gid              => $confluence::gid,
     }
   }
+
+
 
   if ! defined(File[$confluence::installdir]) {
     file { $confluence::installdir:
@@ -49,7 +48,7 @@ class confluence::install {
 
   case $confluence::deploy_module {
     'staging': {
-      require ::staging
+      require staging
       staging::file { $file:
         source  => "${confluence::download_url}/${file}",
         timeout => 1800,
@@ -93,16 +92,14 @@ class confluence::install {
       }
     }
     default: {
-      fail('deploy_module parameter must equal "archive" or staging""')
+      fail('deploy_module parameter must equal "archive" or "staging"')
     }
   }
 
-  if ! defined(File[$confluence::homedir]) {
-    file { $confluence::homedir:
-      ensure => 'directory',
-      owner  => $confluence::user,
-      group  => $confluence::group,
-    }
+  file { [ $confluence::homedir, "${confluence::homedir}/logs" ]:
+    ensure => 'directory',
+    group  => $confluence::group,
+    owner  => $confluence::user,
   }
   exec { "chown_${confluence::webappdir}":
     command     => "/bin/chown -R ${confluence::user}:${confluence::group} ${confluence::webappdir}",
